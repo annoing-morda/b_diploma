@@ -2,9 +2,14 @@ import numpy as np;
 from numpy import linalg as la
 
 def calculate_form_value(M, b, vec):
-    return np.transpose(vec) * M * vec + np.transpose(b) * vec
+    res = np.matmul(np.transpose(vec), np.matmul(M, vec)) + np.matmul(np.transpose(b), vec)
+    return res[0, 0]
 
 def solve_1dim(M, b, cond, cond_const, cond_eq, cond_eq_const):
+    # print(cond)
+    # print(cond_const)
+    # print(cond_eq)
+    # print(cond_eq_const)
     eq_index = 0
     free_index = 1
     M_diff = 2 * M
@@ -18,7 +23,7 @@ def solve_1dim(M, b, cond, cond_const, cond_eq, cond_eq_const):
     b[eq_index, 0] = cond_eq_const
 
     linear_global_min = la.solve(M_diff, b)
-    conditions_check = np.matmul(cond, global_min)
+    conditions_check = np.matmul(cond, linear_global_min)
 
     inside = np.all(np.less_equal(conditions_check, cond_const))
     if inside:      # Minimum is on edge
@@ -26,10 +31,10 @@ def solve_1dim(M, b, cond, cond_const, cond_eq, cond_eq_const):
     else:           # Check vertexes
         minval = 100
         minvert = np.array([[-1000], [-1000]])
-        for i in b.shape[0]:
-            A_matr = np.vstack(cond_eq, M[i])
+        for i in range(b.shape[0]):
+            A_matr = np.vstack((cond_eq, M[i]))
             if la.det(A_matr) != 0:
-                b_matr = np.array(cond_eq_const, b[i, 0])
+                b_matr = np.array([[cond_eq_const], [b[i, 0]]])
                 vertex = la.solve(A_matr, b_matr)
                 vert_val = calculate_form_value(M, b, vertex)
                 if vert_val < minval:
@@ -47,13 +52,16 @@ def solve_2dim(M, b, cond, cond_const):  # Here we minimize function M(x, x) - b
         return (global_min, calculate_form_value(M, b, global_min))
     minval = 100
     minpoint = np.array([[-1000], [-1000]])
-    for i in cond_const.shape[0]:
-        (curval, curpoint) = solve_1dim(M, b, np.delete(cond, i), np.delete(cond, i))
+    for i in range(cond_const.shape[0]):
+        (curpoint, curval) = solve_1dim(M, b, 
+            np.delete(cond, i, 0), np.delete(cond_const, i, 0),
+            cond[i], cond_const[i, 0] )
+        if curval < minval:
+            minval = curval
+            minpoint = curpoint
+    return (minpoint, minval)
 
-
-
-
-print(solve_2dim(np.array([[0, 1], [1, 0]]), 
+print(solve_2dim(np.array([[1, 0], [0, 1]]), 
     np.array([[1], [2]]), 
-    np.array([[1, 0], [0, 1]]),
-    np.array([[-2], [-2]]) ))
+    np.array([[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1]]),
+    np.array([[0], [1], [0], [1], [-1], [1]]) ))
