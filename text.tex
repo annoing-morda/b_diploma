@@ -222,7 +222,7 @@
     \end{equation}
 
     Вместо $\gamma$ в 0 или 1 могут обратиться также $\alpha$ и $\beta$.
-    Эти замены дадут нам 6 граней параллелепипеда.
+    Эти замены дадут нам шесть граней параллелепипеда.
 
   \item
     \textbf{Перход к задаче квадратичного программирования.}
@@ -271,16 +271,84 @@
               a_{22} & a_{23} \\ 
               a_{32} & a_{33} 
         \end{pmatrix}
-        \begin{pmatrix} \alpha \\ \beta \end{pmatrix} + 
-    \]\[
+        \begin{pmatrix} \alpha \\ \beta \end{pmatrix} 
+    %\]\[
       + \begin{pmatrix} 1 & \gamma \end{pmatrix} 
           \begin{pmatrix} 
-              a_{12} & a_{14} \\ 
+              a_{11} & a_{14} \\ 
               a_{14} & a_{44} 
         \end{pmatrix}
-        \begin{pmatrix} 1 & \gamma \end{pmatrix}
-    \]
+        \begin{pmatrix} 1 \\ \gamma \end{pmatrix}         
+      + 2\begin{pmatrix} 1 & \gamma \end{pmatrix} 
+          \begin{pmatrix} 
+              a_{12} & a_{13} \\ 
+              a_{24} & a_{34} 
+        \end{pmatrix}
+        \begin{pmatrix} \alpha \\ \beta \end{pmatrix} 
+    \] 
+    Введем обозначения для константы и составленных из констант матриц: 
 
+        $X_2 = \begin{pmatrix} 
+              a_{22} & a_{23} \\ 
+              a_{32} & a_{33} 
+        \end{pmatrix}$, 
+
+        $b_X = 2\begin{pmatrix} 1 & \gamma \end{pmatrix} 
+          \begin{pmatrix} 
+              a_{12} & a_{13} \\ 
+              a_{24} & a_{34} 
+        \end{pmatrix} = 
+        \begin{pmatrix} 
+              a_{12} & a_{13} \\ 
+              a_{42} & a_{43} 
+        \end{pmatrix}$,
+
+        $C_X = \begin{pmatrix} 1 & \gamma \end{pmatrix} 
+          \begin{pmatrix} 
+              a_{11} & a_{14} \\ 
+              a_{14} & a_{44} 
+        \end{pmatrix}
+        \begin{pmatrix} 1 \\ \gamma \end{pmatrix}$.
+
+      Получим, что 
+      $x^2 = \begin{pmatrix} \alpha && \beta \end{pmatrix}
+               X_2
+             \begin{pmatrix} \alpha \\ \beta \end{pmatrix} +
+             b_X \begin{pmatrix} \alpha \\ \beta \end{pmatrix}  +
+             C_X$.
+
+      Для $y^2$ получим аналогичные матрицы $Y_2$, $b_Y$, $C_Y$.
+
+      Квадратичное неравенство из (\ref{cnb}) приведено к следующему виду:
+
+      \begin{equation}{ineq}
+            \begin{pmatrix} \alpha && \beta \end{pmatrix}
+               (X_2 + Y_2)
+             \begin{pmatrix} \alpha \\ \beta \end{pmatrix} +
+             (b_X + b_Y) \begin{pmatrix} \alpha \\ \beta \end{pmatrix}  \le
+             1 - C_X -C_Y        
+      \end{equation}
+      Именно квадратичную функцию из левой части неравенства мы подвергнем условной минимизации.
+      Запишем задачу квадратичного программирования.
+      \begin{equation}\label{quadrtask}
+          \begin{cases}
+          \begin{pmatrix} \alpha && \beta \end{pmatrix}
+               (X_2 + Y_2)
+             \begin{pmatrix} \alpha \\ \beta \end{pmatrix} +
+             (b_X + b_Y) \begin{pmatrix} \alpha \\ \beta \end{pmatrix} \to min \\
+              0 \le  \alpha   \le  1 \\
+              0 \le  \beta   \le  1 \\
+              \gamma   =  1 \\
+              0 \le  z_o + z_a \alpha + z_b \beta + z_c\gamma   \le  1 
+          \end{cases}
+      \end{equation}
+      Равенство $\gamma = 1$ сюда включено, конечно, только для наглядноcти подстановки в последнее неравенство.
+      Оно примет вид $ -z_o - z_c \le  z_a \alpha + z_b \beta \le  1 -z_o - z_c$.
+      Если минимум, который мы отыщем после оптимизации, будет меньше константы в правой части неравенства (\ref{ineq}), это будет значить наличие пересечения с гранью. 
+      В противном случае пересечения с этой гранью не будет.
+
+      Итак, мы получили задачу квадратичного программирования для проверки наличия пересечения грани и цилиндра. 
+      Аналогично получим такие задачи для остальных пяти граней.
 
 \end{enumerate}
 
