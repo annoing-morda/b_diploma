@@ -1,0 +1,231 @@
+\documentclass[pdftex,ptm,12pt,a4paper]{report}
+\renewcommand{\baselinestretch}{1.5}
+\setcounter{secnumdepth}{5}
+
+% PDF search & cut'n'paste
+\usepackage{cmap}
+
+% Cyrillic support
+\usepackage{mathtext}
+\usepackage[T1,T2A]{fontenc}
+\DeclareSymbolFont{T2Aletters}{T2A}{cmr}{m}{it}
+\usepackage[utf8]{inputenc}
+
+\usepackage[bottom=20mm,top=20mm,right=20mm,left=30mm,headsep=0cm,nofoot]{geometry}
+
+\makeatletter
+\renewcommand*{\ps@plain}{%
+  \let\@mkboth\@gobbletwo
+  \let\@oddhead\@empty
+  \def\@oddfoot{%
+    \reset@font
+    \hfil
+    \thepage
+    % \hfil % removed for aligning to the right
+  }%
+  \let\@evenhead\@empty
+  \let\@evenfoot\@oddfoot
+}
+\makeatother
+\pagestyle{plain}
+\setlength{\footskip}{30pt}
+
+\usepackage[pdftex]{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[english, russian]{babel}
+    \addto{\captionsenglish}{\renewcommand{\bibname}{Литература}}
+    \addto\captionsenglish{\renewcommand{\figurename}{Рис.}}
+    \addto\captionsenglish{\renewcommand{\contentsname}{Содержание}}
+    \addto\captionsenglish{\renewcommand{\proofname}{Доказательство}}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{abstract}
+\usepackage{float}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\renewcommand*{\proofname}{Доказательство}
+\usepackage{indentfirst}
+\usepackage{color}
+\usepackage{natbib}
+\usepackage{bbm, dsfont}
+\usepackage{titlesec}
+\usepackage{caption}
+
+% Detect whether PDFLaTeX is in use
+\usepackage{ifpdf}
+
+% Fix links to floats
+\usepackage[all]{hypcap}
+
+%Formula packages
+\usepackage{amsmath}
+
+% Chapter
+\makeatletter
+\renewcommand{\@chapapp}{Часть}
+\makeatother
+
+\titleformat{\chapter}[display]
+{\normalfont\huge\bfseries}
+{\chaptertitlename\ \thechapter}{0.5ex}{}[]
+
+\titlespacing*{\chapter}{0pt}{0pt}{40pt}
+
+% Rule for Title Page
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+\begin{document}
+
+\begin{titlepage}
+\newpage
+
+\begin{center}{\small
+МИНИСТЕРСТВО ОБРАЗОВАНИЯ И НАУКИ РОССИЙСКОЙ ФЕДЕРАЦИИ \\
+\vspace{0.1cm}
+ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ АВТОНОМНОЕ  \\*
+ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ОБРАЗОВАНИЯ \\*
+"МОСКОВСКИЙ ФИЗИКО-ТЕХНИЧЕСКИЙ ИНСТИТУТ \\*
+(ГОСУДАРСТВЕННЫЙ УНИВЕРСИТЕТ)" \\*
+\vspace{0.1cm}
+ФАКУЛЬТЕТ ИННОВАЦИЙ И ВЫСОКИХ ТЕХНОЛОГИЙ \\*
+КАФЕДРА ФИЗИКО-ТЕХНИЧЕСКОЙ ИНФОРМАТИКИ \\*
+\hrulefill
+}
+\end{center}
+
+\begin{center}
+\Large Выпускная квалификационная работа (бакалаврская работа)
+\end{center}
+
+\vspace{1em}
+
+\begin{center}
+\Large НА ТЕМУ:
+\linebreak 
+\textsc{\large{\textbf{ПРОВЕРКА НАЛИЧИЯ ПЕРЕСЕЧЕНИЯ ТЕЛ В ТРЕХМЕРНОМ ПРОСТРАНСТВЕ}}}
+\end{center}
+
+\vspace{4em}
+
+\begin{flushleft}
+Студент \hrulefill Морозов Дмитрий Антонович \\
+Научный руководитель \hrulefill Гуревич Михаил Исаевич\\
+Зав. кафедрой \hrulefill Бутко Андрей Борисович\\ 
+\end{flushleft}
+
+\vspace{\fill}
+
+\begin{center}
+МОСКВА, 2017
+\end{center}
+
+\end{titlepage}
+
+\tableofcontents
+
+\clearpage
+
+\chapter{Введение}
+В данной работе использованы следующие понятияи обозначения.
+Под если задан $\vec{a}$, понимаем $a$ как его координатный столбец. 
+Базис при этом может быть указан как нижний индекс или отдельно в тексте.
+
+
+\chapter{Описание алгоритма}
+\begin{enumerate}
+  \item 
+      \textbf{Вход алгоритма и требования к нему.}
+      На вход алгоритма поступают цилиндр и параллелограмм в следующем формате.
+      Цилиндр задан четырьмя векторами $\vec{o_c}, \vec{a_c}, \vec{b_c}, \vec{c_c}$ в трехмерном афинном пространстве.
+      Вектор $\vec{o_c}$ задает центр одного из оснований.
+      Вектор $\vec{a_c}$ задает одну из осей эллипса, лежащего в основании.
+      Вектор $\vec{b_c}$ задает вторую ось эллипса, лежащего в основании.
+      Вектор $\vec{с_c}$ задает направляющую цилиндра.
+      Отсюда вытекают следующие требования.
+      Во-первых, координаты векторов должны быть заданы в ортонормированном базисе. 
+      Здесь имеется в виду, что программа считает исходный базис ортонормированным.
+      Во-вторых, вектора $\vec{a_c}$ и $\vec{b_c}$ ортогональны.
+      В-третьих, вектора $\vec{a_c}$, $\vec{b_c}$ и $\vec{с_c}$ представляют собой линейно независимую систему векторов.
+
+      Параллелограмм задан также четырьмя векторами: $\vec{o_p}, \vec{a_p}, \vec{b_p}, \vec{c_p}$.
+      Вектор $\vec{o_c}$ задает одну из вершин.
+      Вектора $\vec{a_p}$, $\vec{b_p}$ и $\vec{с_p}$ задают три непараллельных ребра.
+      Требование вытекает лишь одно: вектора $\vec{a_p}$, $\vec{b_p}$ и $\vec{с_p}$ должны образовывать линейно независимую систему.
+
+      После получения всех параметров при создании объектов соответствующих классов производится проверка требований. 
+      В случае, если требования не выполнены, программа выдаст сообщение об ошибке.
+  \item
+    \textbf{Преобразование базиса.}
+      Перенесем начало координат в точку $\vec{o_c}$. 
+      Вектора $\vec{a_c}$, $\vec{b_c}$ и $\vec{с_c}$ задают базис.
+      Для этого базиса матрица перехода естественно определена:
+      $N = \begin{pmatrix} {a_c} & {b_c} & c_{c} \end{pmatrix}$.
+      Кроме того, введем новое скалярное произведение, определив матрицу Грама в новом базисе как единичную.
+      Таким образом, в новом базисе цилиндр с внутреннотью задан системой неравенств 
+      \begin{equation}\label{cnb}
+          \begin{cases}
+          x^2 + y^2   \le  1  \\
+          0 \le  z   \le  1
+          \end{cases}
+      \end{equation}, 
+
+      где $\begin{pmatrix} x \\ y \\ z \end{pmatrix}$ --- координаты некоторой точки в новом базисе.
+
+      В новом базисе легко получим координаты для векторов, задающих параллелограмм.
+      Для $\vec{o_p}$: 
+      $\begin{pmatrix} x_o \\ y_o \\ z_o \end{pmatrix} =  N (o_p - o_c) $, где $o_p$ и $o_c$ --- коодинаты соответствующих векторов в исходном базисе.
+
+      Для $\vec{a_p}$, $\vec{b_p}$ и $\vec{с_p}$:
+      $\begin{pmatrix} x_a & x_b & x_c \\ y_a & y_b & y_c  \\ z_a & z_b & z_c \end{pmatrix} = 
+      N \begin{pmatrix} a_p & b_p  & c_p \end{pmatrix}$
+
+      Параллелограмму принадлежат точки $\vec{a}$, удовлетворяющие следующим условиям:
+      \begin{equation}\label{pvec}
+        \begin{cases}
+          \vec{a} = \vec{o_p} + \alpha \vec{a_p} + \beta \vec{b_p} + \gamma \vec{c_p} \\
+          0 \le  \alpha   \le  1 \\
+          0 \le  \beta   \le  1 \\
+          0 \le  \gamma   \le  1 
+        \end{cases}
+      \end{equation}
+
+      Перепишем \ref{pvec} в координатном виде с координатами, заданными в новом базисе.
+      \begin{equation}\label{pcoord}
+        \begin{cases}
+          \begin{pmatrix} x \\ y \\ z \end{pmatrix}            
+          =
+          \begin{pmatrix} x_o & x_a & x_b & x_c \\ y_o & y_a & y_b & y_c  \\ y_o & z_a & z_b & z_c 
+          \end{pmatrix} \begin {pmatrix} 1 \\ \alpha \\ \beta \\ \gamma \end{pmatrix} \\
+          0 \le  \alpha   \le  1 \\
+          0 \le  \beta   \le  1 \\
+          0 \le  \gamma   \le  1 
+        \end{cases}
+      \end{equation}
+
+      Таким образом задача сводится к проверке наличия решения у систем \ref{cnb} и \ref{pcoord}.
+  \item
+    \textbf{Переход к задаче на гранях.}
+    Поскольку и цилиндр, и параллелепипед --- тела выпуклые, цилиндр или вложен в параллелепипед, или пересекается с гранями параллелепипеда, или не имеет с ним общих точек вовсе.
+    Грань параллелепипеда задается, например, следующей системой:
+    \begin{equation}\label{planecoord}
+      \begin{cases}
+        \begin{pmatrix} x \\ y \\ z \end{pmatrix}            
+        =
+        \begin{pmatrix} x_o & x_a & x_b & x_c \\ y_o & y_a & y_b & y_c  \\ y_o & z_a & z_b & z_c 
+        \end{pmatrix} \begin {pmatrix} 1 \\ \alpha \\ \beta \\ \gamma \end{pmatrix} \\
+        0 \le  \alpha   \le  1 \\
+        0 \le  \beta   \le  1 \\
+        \gamma   =  1 
+      \end{cases}
+    \end{equation}
+    
+
+\end{enumerate}
+
+
+
+
+
+\end{document}
