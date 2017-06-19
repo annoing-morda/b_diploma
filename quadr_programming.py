@@ -4,10 +4,12 @@ from numpy import linalg as la
 
 def calculate_form_value(M, b, vec):
                 # Подсчет значения формы M(x,x) - b(x) на векторе vec
-    res = np.matmul(np.transpose(vec),
-    np.matmul(M, vec)) + np.matmul(np.transpose(b), vec)
-    print(res)
-    return res[0, 0]
+    res = np.dot(np.transpose(vec),
+    np.dot(M, vec)) + np.dot(np.transpose(b), vec)
+    try :
+        return res[0, 0]
+    except IndexError:
+        return res
 
 def solve_1dim(M, b, cond, cond_const, cond_eq, cond_eq_const):
     eq_index = 0
@@ -31,7 +33,7 @@ def solve_1dim(M, b, cond, cond_const, cond_eq, cond_eq_const):
         conditions_check = np.matmul(cond, linear_global_min)
         inside = np.all(np.less_equal(conditions_check, cond_const))
         if inside:      # Проверяем, что минимум лежит внутри ребра
-            return (linear_global_min, calculate_form_value(linear_global_min))
+            return (linear_global_min, calculate_form_value(M, b, linear_global_min))
                # Проверяем вершины
     minval = 100
     minvert = np.array([[-1000], [-1000]])
@@ -57,7 +59,6 @@ def solve_2dim(task):
     (M, b, cond, cond_const, C, r) = task
     minval = 100
     minpoint = np.array([[-1000], [-1000]])
-    print(C)
     for i in range(cond_const.shape[0]):
         (curpoint, curval) = solve_1dim(M, b,
             np.delete(cond, i, 0), np.delete(cond_const, i, 0),
@@ -69,10 +70,11 @@ def solve_2dim(task):
     if minval <= C:
         # Если минимум на ребрах нас устроил, сообщаем о наличии пересечения
         return True
-    if r == 0:  # Если ось Oz параллельна плоскости многоугольнка,
+
+    if type(r) == type(0):  # Если ось Oz параллельна плоскости многоугольнка,
                 # все возможные проверки уже пройдены.
         return False
-    conditions_check = np.matmul(np.less_equal(cond, r))
+    conditions_check = np.matmul(cond, r)
     # Проверяем принадлежность центра внутренности многоугольника
     center_inside = np.all(np.less_equal(conditions_check, cond_const))
     return center_inside

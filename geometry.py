@@ -122,7 +122,7 @@ class parallelepiped: # Класс, описывающий параллелог�
                         self._get_2_projection(Y_4, coord))
                 b = self._get_b(X_4, coord, val) + self._get_b(Y_4, coord, val)
                 C = (1 - self._get_C(X_4, coord, val) -
-                 self._get_b(Y_4, coord, val))
+                 self._get_C(Y_4, coord, val))
                 conds = np.vstack((np.eye(2), -np.eye(2)))
                 cond_const = np.transpose(np.array([[1, 1, 0, 0]]))
                 # Задаем ограничения по изменяющимся внутренним координатам
@@ -142,5 +142,5 @@ class parallelepiped: # Класс, описывающий параллелог�
     def check_begin_inside(self):
         # Проверяем принадлежность точки (0, 0, 0) параллелограмму
         matr = np.hstack((self.a, self.b, self.c))
-        r = np.solve(matr, -self.o)
+        r = la.solve(matr, -self.o)
         return np.all(r <= 1) and np.all(r >=0)
