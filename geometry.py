@@ -73,11 +73,25 @@ class parallelogram:                                                    # Кла
         v = [matr[2, ]]
         return np.hstack((v[:, 1:coord_num], v[:, coord_num + 1:]))
 
-    def _get_z_const(coord, val):                                       # Возвращает константы из неравенства, вытекающего из ограничения по z
+    def _get_z_const(self, coord, val):                                       # Возвращает константы из неравенства, вытекающего из ограничения по z
         matr = np.hstack((self.o, self.a, self.b, self.c))
         v = [matr[2, ]]
         const = v[0] + v[coord] * val
         return np.array([[1 - const], [-const]])
+
+    def _get_cyl_axis_cross_plane(self, coord, val)             # Находим координаты (внутренние для параллелепипеда)
+                                                                # пересечения оси Oz с гранью
+        matr = np.hstack((self.o, self.a, self.b, self.c))
+        rows = matr[:2]
+        left = rows[:,1:]
+        right =  - rows[:, 0]
+        left_last = np.array([[0, 0, 0]])
+        left_last[0, coord - 1] = 1
+        left = np.vstack((left, left_last))
+        right = np.vstack((right, np.array([[val]])))
+        r = la.solve(left, right)                       # Находим координаты (внутренние для параллелепипеда) пересечения оси и грани
+        r = np.delete(r, cond - 1, 0)                   # Удаляем константную координату
+        return r
 
     def get_tasks(self):                                    # Постановка задач оптимизации на гранях
                                                             # Названия - как в описании
@@ -93,6 +107,12 @@ class parallelogram:                                                    # Кла
                 cond_const = np.transpose(np.array([1, 1, 0, 0]))  # Задаем ограничения по изменяющимся внутренним координатам
                 conds = np.vstack((conds, self._get_z_coefs(coord), -self._get_z_coefs(coord)))
                 cond_const = np.vstack((cond_const, self._get_z_const(coord, val))) # Задаем ограничения по z
-                tasks.append((M, b, conds, cond_const, C))          # Добавляем кортеж, задающий систему неравенств, наличие решения равнозначно наличию пересечения грани и цилиндра
+                r = self(coord, val)    # Находим координаты пересечения
+                tasks.append((M, b, conds, cond_const, C, r))          # Добавляем кортеж, задающий систему неравенств, наличие решения равнозначно наличию пересечения грани и цилиндра
 
         return tasks
+
+    def check_begin_inside(self):                             # Проверяем принадлежность точки (0, 0, 0) параллелограмму
+        matr = np.hstack((self.a, self.b, self.c))
+        r = np.solve(matr, -self.o)
+        return np.all(r <= 1) and np.all(r >=0)

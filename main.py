@@ -19,6 +19,7 @@ def _get_2_projection(matr, coord_num):                       # Возвраща
     m = np.hstack((rows[:, 1:coord_num], rows[:, coord_num + 1:]))
     return m
 
+
 #c = geom.cylinder(read_vector(), read_vector(), read_vector(), read_vector())
 #p = geom.parallelogram(read_vector(), read_vector(), read_vector(), read_vector())
 #print(c.check())

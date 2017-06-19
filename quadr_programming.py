@@ -21,7 +21,6 @@ def solve_1dim(M, b, cond, cond_const, cond_eq, cond_eq_const):
 
     linear_global_min = la.solve(M_diff, b)
     conditions_check = np.matmul(cond, linear_global_min)
-
     inside = np.all(np.less_equal(conditions_check, cond_const))
     if inside:      # Minimum is on edge
         return (linear_global_min, calculate_form_value(linear_global_min))
@@ -39,20 +38,20 @@ def solve_1dim(M, b, cond, cond_const, cond_eq, cond_eq_const):
                     minvert = vertex
         return(minvert, minval)
 
-def solve_2dim(M, b, cond, cond_const):  # Минимизируем функция M(x, x) - bx на ребрах многоугольника, заданной условиями
-                                         # cond*x <= cond_const, и проверяем, не попал ли центр эллипса внутрь многоугольника
-    #global_min = la.solve(2 * M, -b)
-    #conditions_check = np.matmul(cond, global_min)
-    #inside = np.all(np.less_equal(conditions_check, cond_const))
-    #if inside:
-    #    return (global_min, calculate_form_value(M, b, global_min))
+def solve_2dim((M, b, cond, cond_const, C, r)):  # Минимизируем функция M(x, x) - bx на ребрах многоугольника, заданной условиями
+                                                 # cond*x <= cond_const, сравниваем минимум с константой C
+                                                 # Проверяем, не попал ли центр эллипса внутрь многоугольника.
     minval = 100
     minpoint = np.array([[-1000], [-1000]])
     for i in range(cond_const.shape[0]):
         (curpoint, curval) = solve_1dim(M, b,
             np.delete(cond, i, 0), np.delete(cond_const, i, 0),
-            cond[i], cond_const[i, 0] )
+            cond[i], cond_const[i, 0] )     # Ищем минимум на ребре
         if curval < minval:
             minval = curval
-            minpoint = curpoint
-    return (minpoint, minval)
+            minpoint = curpoint             # Устанавливаем минимум на всех ребрах
+    if minval <= C:                         # Если минимум на ребрах нас устроил, сообщаем о наличии пересечения
+        return True
+    conditions_check = np.matmul(np.less_equal(cond, r))                    # Проверяем принадлежность центра внутренности многоугольника
+    center_inside = np.all(np.less_equal(conditions_check, cond_const))
+    return center_inside
