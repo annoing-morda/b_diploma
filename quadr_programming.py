@@ -2,8 +2,10 @@ import numpy as np
 import geometry as geom
 from numpy import linalg as la
 
-def calculate_form_value(M, b, vec):            # Подсчет значения формы M(x,x) - b(x) на векторе vec
-    res = np.matmul(np.transpose(vec), np.matmul(M, vec)) + np.matmul(np.transpose(b), vec)
+def calculate_form_value(M, b, vec):
+                # Подсчет значения формы M(x,x) - b(x) на векторе vec
+    res = np.matmul(np.transpose(vec),
+    np.matmul(M, vec)) + np.matmul(np.transpose(b), vec)
     return res[0, 0]
 
 def solve_1dim(M, b, cond, cond_const, cond_eq, cond_eq_const):
@@ -20,11 +22,12 @@ def solve_1dim(M, b, cond, cond_const, cond_eq, cond_eq_const):
     b[eq_index, 0] = cond_eq_const
 
     linear_global_min = la.solve(M_diff, b)
+    # Ищем минимум на прямой, содержащей ребро
     conditions_check = np.matmul(cond, linear_global_min)
     inside = np.all(np.less_equal(conditions_check, cond_const))
-    if inside:      # Minimum is on edge
+    if inside:      # Проверяем, что минимум лежит внутри ребра
         return (linear_global_min, calculate_form_value(linear_global_min))
-    else:           # Check vertexes
+    else:           # Проверяем вершины
         minval = 100
         minvert = np.array([[-1000], [-1000]])
         for i in range(b.shape[0]):
@@ -33,6 +36,7 @@ def solve_1dim(M, b, cond, cond_const, cond_eq, cond_eq_const):
                 b_matr = np.array([[cond_eq_const], [b[i, 0]]])
                 vertex = la.solve(A_matr, b_matr)
                 conditions_check = np.matmul(cond, vertex)
+                    # Проверяем, что отобранная точка действительно вершина
                 inside = np.all(np.less_equal(conditions_check, cond_const))
                 if inside:
                     vert_val = calculate_form_value(M, b, vertex)
@@ -41,9 +45,11 @@ def solve_1dim(M, b, cond, cond_const, cond_eq, cond_eq_const):
                         minvert = vertex
         return(minvert, minval)
 
-def solve_2dim((M, b, cond, cond_const, C, r)):  # Минимизируем функция M(x, x) - bx на ребрах многоугольника, заданной условиями
-                                                 # cond*x <= cond_const, сравниваем минимум с константой C
-                                                 # Проверяем, не попал ли центр эллипса внутрь многоугольника.
+def solve_2dim(task):
+    # Минимизируем функция M(x, x) - bx на ребрах многоугольника, заданной
+    # условиями cond*x <= cond_const, сравниваем минимум с константой C
+    # Проверяем, не попал ли центр эллипса внутрь многоугольника.
+    (M, b, cond, cond_const, C, r) = task
     minval = 100
     minpoint = np.array([[-1000], [-1000]])
     for i in range(cond_const.shape[0]):
@@ -52,9 +58,12 @@ def solve_2dim((M, b, cond, cond_const, C, r)):  # Минимизируем фу
             cond[i], cond_const[i, 0] )     # Ищем минимум на ребре
         if curval < minval:
             minval = curval
-            minpoint = curpoint             # Устанавливаем минимум на всех ребрах
-    if minval <= C:                         # Если минимум на ребрах нас устроил, сообщаем о наличии пересечения
+            minpoint = curpoint
+            # Устанавливаем минимум на всех ребрах
+    if minval <= C:
+        # Если минимум на ребрах нас устроил, сообщаем о наличии пересечения
         return True
-    conditions_check = np.matmul(np.less_equal(cond, r))                    # Проверяем принадлежность центра внутренности многоугольника
+    conditions_check = np.matmul(np.less_equal(cond, r))
+    # Проверяем принадлежность центра внутренности многоугольника
     center_inside = np.all(np.less_equal(conditions_check, cond_const))
     return center_inside
