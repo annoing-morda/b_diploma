@@ -7,10 +7,6 @@ def calculate_form_value(M, b, vec):            # Подсчет значени�
     return res[0, 0]
 
 def solve_1dim(M, b, cond, cond_const, cond_eq, cond_eq_const):
-    # print(cond)
-    # print(cond_const)
-    # print(cond_eq)
-    # print(cond_eq_const)
     eq_index = 0
     free_index = 1
     M_diff = 2 * M
@@ -43,13 +39,13 @@ def solve_1dim(M, b, cond, cond_const, cond_eq, cond_eq_const):
                     minvert = vertex
         return(minvert, minval)
 
-def solve_2dim(M, b, cond, cond_const):  # Here we minimize function M(x, x) - bx with conditions described in c
-                                    # condition is c*x <= cond_const and describes a polygon.
-    global_min = la.solve(2 * M, -b)
-    conditions_check = np.matmul(cond, global_min)
-    inside = np.all(np.less_equal(conditions_check, cond_const))
-    if inside:
-        return (global_min, calculate_form_value(M, b, global_min))
+def solve_2dim(M, b, cond, cond_const):  # Минимизируем функция M(x, x) - bx на ребрах многоугольника, заданной условиями
+                                         # cond*x <= cond_const, и проверяем, не попал ли центр эллипса внутрь многоугольника
+    #global_min = la.solve(2 * M, -b)
+    #conditions_check = np.matmul(cond, global_min)
+    #inside = np.all(np.less_equal(conditions_check, cond_const))
+    #if inside:
+    #    return (global_min, calculate_form_value(M, b, global_min))
     minval = 100
     minpoint = np.array([[-1000], [-1000]])
     for i in range(cond_const.shape[0]):

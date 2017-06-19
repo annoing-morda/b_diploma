@@ -57,23 +57,42 @@ class parallelogram:                                                    # Кла
         m = np.hstack((rows[:, 1:coord_num], rows[:, coord_num + 1:]))
         return m
 
-    def _get_b(self, matr, coord_num, val):
+    def _get_b(self, matr, coord_num, val):                             # Возвращает b_X или b_Y
         rows = np.vstack((matr[1], matr[coord_num]))
         m = np.hstack((rows[:, 1:coord_num], rows[:, coord_num + 1:]))
         return 2 * np.matmul(np.array([1, val]), m)
 
-    def: _get_C(self, matr, coord_num, val):
+    def: _get_C(self, matr, coord_num, val):                            # Возвращает C_x или C_y
         rows = np.vstack((matr[1], matr[coord_num]))
         m = np.hstack((rows[:, 1], rows[:, coord_num]))
         r = np.array([1, val])
         return np.matmul(np.matmul(r, m), np.transpose(m))[0, 0]
 
+    def _get_z_coefs(self, coord):                                      # Возвращает коэффициенты из неравенства, вытекающего из ограничения по z
+        matr = np.hstack((self.o, self.a, self.b, self.c))
+        v = [matr[2, ]]
+        return np.hstack((v[:, 1:coord_num], v[:, coord_num + 1:]))
+
+    def _get_z_const(coord, val):                                       # Возвращает константы из неравенства, вытекающего из ограничения по z
+        matr = np.hstack((self.o, self.a, self.b, self.c))
+        v = [matr[2, ]]
+        const = v[0] + v[coord] * val
+        return np.array([[1 - const], [-const]])
 
     def get_tasks(self):                                    # Постановка задач оптимизации на гранях
                                                             # Названия - как в описании
         X_4 = self._get_X_4()
         Y_4 = self._get_Y_4()
-        print
+        tasks = []
         for coord in (1, 2, 3):                             # Описание всех граней: каждая грань - пара из номера
             for val in (0., 1.):                            # внутренней координаты, обращенной в константу, и константы (0 или 1)
-                print (coord, val)
+                M = self._get_2_projection(X_4, coord) + self._get_2_projection(Y_4, coord)
+                b = self._get_b(X_4, coord, val) + self._get_b(Y_4, coord, val)
+                C = 1 - self._get_C(X_4, coord, val) - self._get_b(Y_4, coord, val)
+                conds = np.vstack((np.eye(2), -np.eye(2)))
+                cond_const = np.transpose(np.array([1, 1, 0, 0]))  # Задаем ограничения по изменяющимся внутренним координатам
+                conds = np.vstack((conds, self._get_z_coefs(coord), -self._get_z_coefs(coord)))
+                cond_const = np.vstack((cond_const, self._get_z_const(coord, val))) # Задаем ограничения по z
+                tasks.append((M, b, conds, cond_const, C))          # Добавляем кортеж, задающий систему неравенств, наличие решения равнозначно наличию пересечения грани и цилиндра
+
+        return tasks
