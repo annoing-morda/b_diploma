@@ -32,10 +32,13 @@ def solve_1dim(M, b, cond, cond_const, cond_eq, cond_eq_const):
             if la.det(A_matr) != 0:
                 b_matr = np.array([[cond_eq_const], [b[i, 0]]])
                 vertex = la.solve(A_matr, b_matr)
-                vert_val = calculate_form_value(M, b, vertex)
-                if vert_val < minval:
-                    minval = vert_val
-                    minvert = vertex
+                conditions_check = np.matmul(cond, vertex)
+                inside = np.all(np.less_equal(conditions_check, cond_const))
+                if inside:
+                    vert_val = calculate_form_value(M, b, vertex)
+                    if vert_val < minval:
+                        minval = vert_val
+                        minvert = vertex
         return(minvert, minval)
 
 def solve_2dim((M, b, cond, cond_const, C, r)):  # Минимизируем функция M(x, x) - bx на ребрах многоугольника, заданной условиями
