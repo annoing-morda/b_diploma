@@ -27,7 +27,7 @@ class cylinder: # Класс, описывающий цилиндр
         return la.inv(np.hstack((self.a, self.b, self.c)))
 
 
-class parallelogram: # Класс, описывающий параллелограмм
+class parallelepiped: # Класс, описывающий параллелограмм
     def __init__(self, o, a, b, c):
         self.o = o
         self.a = a
@@ -70,21 +70,21 @@ class parallelogram: # Класс, описывающий параллелогр
 
     def _get_C(self, matr, coord_num, val):     # Возвращает C_x или C_y
         rows = np.vstack((matr[0], matr[coord_num]))
-        m = np.hstack((rows[:, 0], rows[:, coord_num]))
+        m = np.hstack((np.transpose([rows[:, 0]]),
+        np.transpose([rows[:, coord_num]])))
         r = np.array([1, val])
-        print (rows, r)
-        return np.matmul(np.matmul(r, m), np.transpose(m))[0, 0]
+        return np.matmul(np.matmul(r, m), np.transpose(m))[0]
 
     def _get_z_coefs(self, coord):
-        # Возвращает коэффициенты из неравенства, вытекающего из ограничения по z
+       # Возвращает коэффициенты из неравенства, вытекающего из ограничения по z
         matr = np.hstack((self.o, self.a, self.b, self.c))
-        v = [matr[2, ]]
-        return np.hstack((v[:, 1:coord_num], v[:, coord_num + 1:]))
+        v = matr[2,:]
+        return np.hstack((v[1:coord], v[coord + 1:]))
 
     def _get_z_const(self, coord, val):
         # Возвращает константы из неравенства, вытекающего из ограничения по z
         matr = np.hstack((self.o, self.a, self.b, self.c))
-        v = [matr[2, ]]
+        v = matr[2,:]
         const = v[0] + v[coord] * val
         return np.array([[1 - const], [-const]])
 
@@ -93,15 +93,18 @@ class parallelogram: # Класс, описывающий параллелогр
                  # пересечения оси Oz с гранью
         matr = np.hstack((self.o, self.a, self.b, self.c))
         rows = matr[:2]
-        left = rows[:,1:]
-        right =  - rows[:, 0]
+        left = np.hstack((self.a, self.b, self.c))
+        left = left[:2]
+        right =  - self.o[:2]
         left_last = np.array([[0, 0, 0]])
         left_last[0, coord - 1] = 1
         left = np.vstack((left, left_last))
         right = np.vstack((right, np.array([[val]])))
+        if la.det(left) == 0:       # Если система не имеет решения,
+            return 0                # проверку проводить не будем.
         r = la.solve(left, right)
         # Находим координаты (внутренние для параллелепипеда) пересечения оси и грани
-        r = np.delete(r, cond - 1, 0)
+        r = np.delete(r, coord - 1, 0)
         # Удаляем константную координату
         return r
 
@@ -121,14 +124,14 @@ class parallelogram: # Класс, описывающий параллелогр
                 C = (1 - self._get_C(X_4, coord, val) -
                  self._get_b(Y_4, coord, val))
                 conds = np.vstack((np.eye(2), -np.eye(2)))
-                cond_const = np.transpose(np.array([1, 1, 0, 0]))
+                cond_const = np.transpose(np.array([[1, 1, 0, 0]]))
                 # Задаем ограничения по изменяющимся внутренним координатам
                 conds = np.vstack((conds, self._get_z_coefs(coord), -
                 self._get_z_coefs(coord)))
                 cond_const = (
                 np.vstack((cond_const, self._get_z_const(coord, val))))
                 # Задаем ограничения по z
-                r = self(coord, val)
+                r = self._get_cyl_axis_cross_plane(coord, val)
                 # Находим координаты пересечения
                 tasks.append((M, b, conds, cond_const, C, r))
                 # Добавляем кортеж, задающий систему неравенств, наличие решения

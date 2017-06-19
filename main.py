@@ -21,11 +21,11 @@ c = geom.cylinder(read_vector(), read_vector(), read_vector(), read_vector())
 if not c.check():   # Проверяем корректность задания цилиндра
     print("Incorrect cylinder, exiting")
     exit()
-p = geom.parallelogram(read_vector(),
+p = geom.parallelepiped(read_vector(),
  read_vector(), read_vector(), read_vector())
 # Считываем параллелограмм
 if not p.check():   # Проверяем корректность задания параллелограмма
-    print("Incorrect parallelogram, exiting")
+    print("Incorrect parallelepiped, exiting")
     exit()
 p.transform(c.get_matrix(), c.get_translation())
     # Проводим преобразование базиса
